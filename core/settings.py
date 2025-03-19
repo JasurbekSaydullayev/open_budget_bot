@@ -1,6 +1,8 @@
 from pathlib import Path
 from decouple import config
 import os
+from corsheaders.defaults import default_headers
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,6 +11,17 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['*']
+
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = ["*"]
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
+    CORS_ALLOW_ALL_METHODS = True
+    CORS_ALLOW_HEADERS = default_headers + (
+        'cache-control',
+        'content-disposition',
+        'Access-Control-Expose-Headers',
+    )
 
 INSTALLED_APPS = [
     'django.contrib.admin',
