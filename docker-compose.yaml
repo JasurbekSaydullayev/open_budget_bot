@@ -7,6 +7,8 @@ services:
     restart: always
     env_file:
       - .env
+    ports:
+      - "0707:0707"
     volumes:
       - .:/app
     networks:
