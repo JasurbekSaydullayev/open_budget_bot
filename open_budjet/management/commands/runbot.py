@@ -37,7 +37,7 @@ def create_application(chat_id, phone_number, username):
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     bot.send_message(
-        message.chat.id, "Assalomu alaykum! Iltimos, telefon raqamingizni yuboring yoki kontakt jo‘nating.",
+        message.chat.id, "Assalomu alaykum! Iltimos, telefon raqamingizni 901234657 formatda yuboring yoki kontakt jo‘nating.",
         reply_markup=get_phone_keyboard()
     )
     bot.set_state(message.chat.id, UserStates.waiting_for_phone)
