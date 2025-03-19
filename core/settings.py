@@ -3,7 +3,6 @@ from decouple import config
 import os
 from corsheaders.defaults import default_headers
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY')
@@ -13,7 +12,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = ['*']
 
 if DEBUG:
-    CSRF_TRUSTED_ORIGINS = ["*"]
+    CSRF_TRUSTED_ORIGINS = ["http://*", "https://*"]
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOW_ALL_METHODS = True
