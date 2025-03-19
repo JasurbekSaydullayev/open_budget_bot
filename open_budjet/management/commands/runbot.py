@@ -1,5 +1,6 @@
 import os
 import random
+import logging
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from telebot import TeleBot, types
@@ -13,6 +14,9 @@ BOT_TOKEN = settings.BOT_TOKEN
 state_storage = StateMemoryStorage()
 bot = TeleBot(BOT_TOKEN, state_storage=state_storage)
 bot.add_custom_filter(StateFilter(bot))  # StateFilterni ro'yxatdan o'tkazish
+
+
+logger = logging.getLogger(__name__)
 
 
 # State-lar
@@ -69,27 +73,30 @@ def handle_contact_or_phone(message):
 
 @bot.message_handler(state=UserStates.waiting_for_photo, content_types=['photo'])
 def handle_photo(message):
-    chat_id = message.chat.id
-    customer = Customers.objects.filter(chat_id=chat_id, status='waiting_for_photo').first()
-    if not customer:
-        bot.send_message(chat_id, "Iltimos, avval telefon raqamingizni yuboring.")
-        return
+    try:
+        chat_id = message.chat.id
+        customer = Customers.objects.filter(chat_id=chat_id, status='waiting_for_photo').first()
+        if not customer:
+            bot.send_message(chat_id, "Iltimos, avval telefon raqamingizni yuboring.")
+            return
 
-    file_info = bot.get_file(message.photo[-1].file_id)
-    downloaded_file = bot.download_file(file_info.file_path)
-    filename = f"{chat_id}_{customer.application_number}_photo.jpg"
-    image_path = os.path.join(settings.MEDIA_ROOT, filename)
+        file_info = bot.get_file(message.photo[-1].file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        filename = f"{chat_id}_{customer.application_number}_photo.jpg"
+        image_path = os.path.join(settings.MEDIA_ROOT, filename)
 
-    with open(image_path, 'wb') as new_file:
-        new_file.write(downloaded_file)
+        with open(image_path, 'wb') as new_file:
+            new_file.write(downloaded_file)
 
-    customer.image = filename
-    customer.status = 'waiting_for_card'
-    customer.save()
+        customer.image = filename
+        customer.status = 'waiting_for_card'
+        customer.save()
 
-    bot.send_message(chat_id, "✅ Rasm qabul qilindi. Endi iltimos, karta raqamingizni yuboring (16 ta raqam).")
-    bot.set_state(chat_id, UserStates.waiting_for_card)
-
+        bot.send_message(chat_id, "✅ Rasm qabul qilindi. Endi iltimos, karta raqamingizni yuboring (16 ta raqam).")
+        bot.set_state(chat_id, UserStates.waiting_for_card)
+    except Exception as e:
+        logger.error(f"handle_photo xatosi: {str(e)}", exc_info=True)
+        bot.send_message(chat_id, "❌ Rasmni qabul qilishda xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.")
 
 @bot.message_handler(state=UserStates.waiting_for_card, content_types=['text'])
 def handle_card(message):
