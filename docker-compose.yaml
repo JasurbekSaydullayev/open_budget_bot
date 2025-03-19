@@ -4,16 +4,16 @@ services:
   bot:
     build: .
     container_name: my_telegram_bot
-    command: bash -c "python manage.py runserver 0.0.0.0:8000"
     restart: always
     env_file:
       - .env
     ports:
-      - "707:8000"
+      - "707:707"
     volumes:
       - .:/app
     networks:
       - bot_network
+    entrypoint: ["bash", "./entrypoint.sh"]
 
 networks:
   bot_network:

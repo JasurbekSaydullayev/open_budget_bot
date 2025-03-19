@@ -9,4 +9,4 @@ COPY . .
 RUN pip install --no-cache-dir -r req.txt
 RUN chmod +x entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["bash", "./entrypoint.sh"]
